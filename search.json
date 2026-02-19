@@ -1,0 +1,14 @@
+---
+layout: null
+---
+[
+{% for post in site.posts %}
+  {
+    "title": "{{ post.title | escape }}",
+    "url": "{{ site.baseurl }}{{ post.url }}",
+    "date": "{{ post.date | date: "%B %d, %Y" }}",
+    "category": "{{ post.category }}",
+    "excerpt": "{{ post.excerpt | strip_html | escape }}"
+  }{% unless forloop.last %},{% endunless %}
+{% endfor %}
+]

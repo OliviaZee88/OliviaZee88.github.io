@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title }} | OliviaZ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/styles.css">
+    {{ page.extra_head }}
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ site.baseurl }}/">
+                🦊 OliviaZ
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link{% if page.url == '/' %} active{% endif %}" href="{{ site.baseurl }}/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link{% if page.url contains 'about' %} active{% endif %}" href="{{ site.baseurl }}/about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link{% if page.url contains 'tags' %} active{% endif %}" href="{{ site.baseurl }}/tags.html">Tags</a></li>
+                    <li class="nav-item"><a class="nav-link{% if page.url contains 'archive' %} active{% endif %}" href="{{ site.baseurl }}/archive.html">Archive</a></li>
+                    <li class="nav-item">
+                        <div class="input-group">
+                            <input type="text" id="site-search" class="form-control form-control-sm" placeholder="Search..." aria-label="Search">
+                            <button class="btn btn-outline-light btn-sm" type="button" onclick="searchSite()">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {{ content }}
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container text-center">
+            <p class="mb-0">© 2026 OliviaZ. Made with Bootstrap, Jekyll, and curiosity.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Site Search -->
+    <script>
+    let searchIndex = null;
+    
+    async function loadSearchIndex() {
+        if (!searchIndex) {
+            try {
+                const response = await fetch('/search.json');
+                searchIndex = await response.json();
+            } catch (e) {
+                console.error('Failed to load search index:', e);
+            }
+        }
+        return searchIndex || [];
+    }
+    
+    function searchSite() {
+        const query = document.getElementById('site-search').value.toLowerCase().trim();
+        if (!query) return;
+        
+        loadSearchIndex().then(posts => {
+            const results = posts.filter(post => 
+                post.title.toLowerCase().includes(query) ||
+                post.excerpt.toLowerCase().includes(query) ||
+                post.category.toLowerCase().includes(query)
+            );
+            showSearchResults(results, query);
+        });
+    }
+    
+    function showSearchResults(results, query) {
+        if (results.length === 0) {
+            alert(`No posts found for "${query}"`);
+            return;
+        }
+        
+        const message = results.map(post => 
+            `• ${post.title} (${post.category})\n  ${post.date}`
+        ).join('\n\n');
+        
+        alert(`Found ${results.length} post${results.length !== 1 ? 's' : ''} for "${query}":\n\n${message}\n\nClick OK to view the first result.`);
+        
+        if (results.length > 0) {
+            window.location.href = results[0].url;
+        }
+    }
+    
+    // Allow Enter key to search
+    document.getElementById('site-search').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchSite();
+        }
+    });
+    </script>
+</body>
+</html>
